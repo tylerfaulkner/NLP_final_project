@@ -23,7 +23,7 @@ for movie in movies:
 
 
     filename = movie if movie != 'Face/Off' else 'Face Off'
-    f = open('movies/' + filename.replace(':', '') +
+    f = open('summaries/' + filename.replace(':', '') +
             '.txt', 'a+', encoding='utf-8')
     f.write(plot.strip())
     f.close()
