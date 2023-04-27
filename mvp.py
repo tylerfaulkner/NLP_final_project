@@ -2,7 +2,12 @@
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
-import transformers
+from transformers import (
+    Seq2SeqTrainer,
+    Seq2SeqTrainingArguments,
+    AutoTokenizer,
+    AutoModelForSeq2SeqLM,
+)
 import numpy as np
 import evaluate
 
@@ -74,14 +79,68 @@ def summarize_text(text):
     print("Summary:", summary)
 
 def train_model(data):
-    #Load the longformer from huggingface
-    model = transformers.LongformerForMaskedLM.from_pretrained('allenai/longformer-base-4096')
-    #Load the tokenizer
-    tokenizer = transformers.LongformerTokenizerFast.from_pretrained('allenai/longformer-base-4096')
-    #Tokenize the data
-    tokenized_data = tokenizer(data, return_tensors='pt')
+    """
+    Training code from script-2-story repo https://github.com/tony-hong/script-2-story/blob/main/train.py
+    """
+    # max encoder length for led
+    encoder_max_length = 1024
+    decoder_max_length = 768
+    batch_size = 16
+    gradient_accumulation_steps = 4
+    noise_lambda = 0
+    learning_rate = 5e-5
+    weight_decay = 0.01
+    num_train_epochs = 20
 
-    model.train()
+    num_samples = 1022
+    num_steps = float(num_samples) * num_train_epochs / (batch_size * gradient_accumulation_steps)
+    steps_per_epoch = int(num_steps / num_train_epochs)
+
+    #Load the longformer from huggingface
+    led = AutoModelForSeq2SeqLM.from_pretrained("allenai/led-base-16384", gradient_checkpointing=True, use_cache=False)    #Load the tokenizer
+    tokenizer = AutoTokenizer.from_pretrained("allenai/led-base-16384")    #Tokenize the data
+    tokenized_data = tokenizer(data, return_tensors='pt')
+    training_args = Seq2SeqTrainingArguments(
+        predict_with_generate=True,
+        evaluation_strategy="steps",
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        learning_rate = learning_rate,
+        weight_decay = weight_decay,
+        num_train_epochs = num_train_epochs,
+        fp16=False,
+    #     fp16_backend="apex",
+        output_dir="./",
+        logging_steps=steps_per_epoch, 
+        eval_steps=steps_per_epoch, 
+        save_steps=steps_per_epoch, 
+        warmup_steps=512,
+        save_total_limit=2,
+        gradient_accumulation_steps = gradient_accumulation_steps, 
+        optim= "adafactor"
+    )
+
+    led.config.num_beams = 2
+    led.config.max_length = 1024
+    led.config.min_length = 768
+    led.config.length_penalty = 2.0
+    led.config.early_stopping = True
+    led.config.no_repeat_ngram_size = 3
+
+    # instantiate trainer
+    trainer = Seq2SeqTrainer(
+        model=led,
+        tokenizer=tokenizer,
+        args=training_args,
+        compute_metrics=compute_metrics_partial,
+        train_dataset=train_set,
+        eval_dataset=val_set,
+    )
+
+    # start training
+    # torch.autograd.set_detect_anomaly(True)
+    trainer.train()
+    trainer.save_model("check/")
 
 
 def removeScriptWords(text):
