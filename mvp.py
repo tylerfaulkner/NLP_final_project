@@ -199,8 +199,8 @@ def process_data_to_model_inputs(batch):
     """
     From LED Google collab notebook: https://colab.research.google.com/drive/12LjJazBl7Gam0XBPy_y0CTOJZeZ34c2v?usp=sharing#scrollTo=lEcAaZhNY8ge
     """
-    max_input_length = 16384
-    max_output_length = 2000
+    max_input_length = 10000
+    max_output_length = 1000
     # tokenize the inputs and labels
     inputs = tokenizer(
         batch["scripts"],
