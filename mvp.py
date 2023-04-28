@@ -269,7 +269,7 @@ def train_model():
         weight_decay=weight_decay,
         num_train_epochs=num_train_epochs,
         fp16=False,
-        #     fp16_backend="apex",
+        fp16_backend="apex",
         output_dir="./",
         logging_steps=steps_per_epoch,
         eval_steps=steps_per_epoch,
