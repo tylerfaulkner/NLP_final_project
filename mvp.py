@@ -150,6 +150,8 @@ def loadScriptData():
         for summary in summary_data:
             if script[1] == convertFileName(summary[1]):
                 data.append([script[1], script[0], summary[0]])
+    #print row count
+    print("Total amount of data:", len(data))
     return data  # [:,0], data[:,1]
 
 
@@ -180,7 +182,11 @@ def toDataset(data):
             movies.append(i[0])
             scripts.append(i[1])
             summaries.append(i[2])
-    return Dataset.from_dict({"movies": movies, "scripts": scripts, "summaries": summaries})
+    dataset = Dataset.from_dict({"movies": movies, "scripts": scripts, "summaries": summaries})
+    print(len(dataset))
+    print("Converted to dataset")
+    print(dataset)
+    return dataset
 
 
 def train_model():
@@ -201,7 +207,6 @@ def train_model():
     num_steps = float(num_samples) * num_train_epochs / \
         (batch_size * gradient_accumulation_steps)
     steps_per_epoch = int(num_steps / num_train_epochs)
-    data = loadScriptData()  # indexes should match
     # Load the longformer from huggingface
     led = AutoModelForSeq2SeqLM.from_pretrained(
         "allenai/led-base-16384", gradient_checkpointing=True, use_cache=False)  # Load the tokenizer
@@ -241,16 +246,30 @@ def train_model():
     # Perform k-fold cross validation
     k = 6
     # Split data into k folds
+    data = loadScriptData()  # indexes should match
+    print(len(data))
+    #print(data[0])
     folds = np.array_split(data, k)
+    print("Number of folds:" + str(len(folds)))
     # For each fold, train on k-1 folds and validate on the remaining fold
     for i in range(k):
         # Get training data
         train_set_array = folds[:i] + folds[i+1:]
+        train_set_array = np.concatenate(train_set_array)
+        print("Rows in train array:" + str(len(train_set_array)))
         # Get validation data
         val_set_array = folds[i]
+        print("Rows in val array:" + str(len(val_set_array)))
+        print(len(val_set_array[:, 0]))
         # TODO: CONVERT DATA TO DATASET
         train_set = toDataset(train_set_array)
         val_set = toDataset(val_set_array)
+        def tokenize_function(examples):
+            return tokenizer(examples["scripts"], padding="max_length", truncation=True)
+        train_set = train_set.map(
+            tokenize_function, batched=True, batch_size=batch_size)
+        val_set = val_set.map(
+            tokenize_function, batched=True, batch_size=batch_size)
         # Train model on training data
         # instantiate trainer
         trainer = Seq2SeqTrainer(
@@ -281,23 +300,23 @@ def removeScriptWords(text):
 
 if __name__ == "__main__":
     # Read clean script
-    with open('clean_scripts/John-Wick.txt', 'r') as file:
-        data = file.read()
+    #with open('clean_scripts/John-Wick.txt', 'r') as file:
+        #data = file.read()
         # Split data into scenes
         # Each scene begins with a line that starts with a number
-        scenes = data.split('\n')
+        #scenes = data.split('\n')
         # Remove empty lines
-        scenes = [line for line in scenes if line.strip() != '']
+        #scenes = [line for line in scenes if line.strip() != '']
         # Find the indexes of all lines that start with a number
-        scene_indexes = [i for i, line in enumerate(
-            scenes) if line[0].isdigit()]
+        #scene_indexes = [i for i, line in enumerate(
+          #  scenes) if line[0].isdigit()]
         # Split the data into scenes
-        scenes = [scenes[i:j]
-                  for i, j in zip(scene_indexes, scene_indexes[1:]+[None])]
-        print(len(scenes))
+        #scenes = [scenes[i:j]
+         #         for i, j in zip(scene_indexes, scene_indexes[1:]+[None])]
+        #print(len(scenes))
         # print(scenes[0])
         # combine each scene into one string
-        scenes = [' '.join(scene) for scene in scenes]
+        #scenes = [' '.join(scene) for scene in scenes]
         # print(convertFileName("The Bourne Identity (2002 film)"))
-        summarize_text(removeScriptWords(data))
-        train_model()
+        #summarize_text(removeScriptWords(data))
+    train_model()
