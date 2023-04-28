@@ -201,8 +201,8 @@ def process_data_to_model_inputs(batch):
     """
     encoder_max_length = 1024
     decoder_max_length = 768
-    max_input_length = 8192
-    max_output_length = 512
+    max_input_length = 1024
+    max_output_length = 768
     # tokenize the inputs and labels
     inputs = tokenizer(
         batch["scripts"],
@@ -324,7 +324,7 @@ def train_model():
         # instantiate trainer
         trainer = Seq2SeqTrainer(
             model=led,
-            tokenizer=tokenizer,
+            #tokenizer=tokenizer,
             args=training_args,
             compute_metrics=compute_metrics_partial,
             train_dataset=train_set,
