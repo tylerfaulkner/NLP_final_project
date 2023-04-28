@@ -15,6 +15,8 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 import nltk
 nltk.download('stopwords')
+tokenizer = AutoTokenizer.from_pretrained(
+        "allenai/led-base-16384")
 # import evaluate
 
 # List generated with the help of Github Copilot
@@ -188,6 +190,46 @@ def toDataset(data):
     print(dataset)
     return dataset
 
+def process_data_to_model_inputs(batch):
+    """
+    From LED Google collab notebook: https://colab.research.google.com/drive/12LjJazBl7Gam0XBPy_y0CTOJZeZ34c2v?usp=sharing#scrollTo=lEcAaZhNY8ge
+    """
+    max_input_length = 16384
+    max_output_length = 2000
+    # tokenize the inputs and labels
+    inputs = tokenizer(
+        batch["scripts"],
+        padding="max_length",
+        truncation=True,
+        max_length=max_input_length,
+    )
+    outputs = tokenizer(
+        batch["summaries"],
+        padding="max_length",
+        truncation=True,
+        max_length=max_output_length,
+    )
+
+    batch["input_ids"] = inputs.input_ids
+    batch["attention_mask"] = inputs.attention_mask
+
+    # create 0 global_attention_mask lists
+    batch["global_attention_mask"] = len(batch["input_ids"]) * [
+        [0 for _ in range(len(batch["input_ids"][0]))]
+    ]
+
+    # since above lists are references, the following line changes the 0 index for all samples
+    batch["global_attention_mask"][0][0] = 1
+    batch["labels"] = outputs.input_ids
+
+    # We have to make sure that the PAD token is ignored
+    batch["labels"] = [
+        [-100 if token == tokenizer.pad_token_id else token for token in labels]
+        for labels in batch["labels"]
+    ]
+
+    return batch
+
 
 def train_model():
     """
@@ -210,8 +252,6 @@ def train_model():
     # Load the longformer from huggingface
     led = AutoModelForSeq2SeqLM.from_pretrained(
         "allenai/led-base-16384", gradient_checkpointing=True, use_cache=False)  # Load the tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(
-        "allenai/led-base-16384")  # Tokenize the data
     # tokenized_data = tokenizer(data, return_tensors='pt')
     training_args = Seq2SeqTrainingArguments(
         predict_with_generate=True,
@@ -267,9 +307,12 @@ def train_model():
         def tokenize_function(examples):
             return tokenizer(examples["scripts"], padding="max_length", truncation=True)
         train_set = train_set.map(
-            tokenize_function, batched=True, batch_size=batch_size)
+            tokenize_function, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
         val_set = val_set.map(
-            tokenize_function, batched=True, batch_size=batch_size)
+            tokenize_function, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
+        print("Datasets Converted to Input Format")
+        print(train_set)
+        print(val_set)
         # Train model on training data
         # instantiate trainer
         trainer = Seq2SeqTrainer(
