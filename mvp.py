@@ -1,19 +1,22 @@
 # importing libraries
-import nltk
-nltk.download('stopwords')
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize, sent_tokenize
+import re
+import os
+import numpy as np
+from torch.utils.data import Dataset
+# from datasets import Dataset
+from datasets import load_metric
+from functools import partial
 from transformers import (
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
     AutoTokenizer,
     AutoModelForSeq2SeqLM,
 )
-from torch.utils.data import Dataset
-import numpy as np
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+import nltk
+nltk.download('stopwords')
 # import evaluate
-import os
-import re
 
 # List generated with the help of Github Copilot
 SCRIPT_STOP_WORDS = ['EXT.', ' EXT ', '- NIGHT', '- DAY',
@@ -79,7 +82,7 @@ def summarize_text(text, threshold=1):
             summary += " " + sentence
     summary_tokens = word_tokenize(summary)
     print("Total amount of token in summary:", len(summary_tokens))
-    print("Summary:", summary)
+    # print("Summary:", summary)
     return summary, len(summary_tokens)
 
 
@@ -140,7 +143,7 @@ def loadScriptData():
     # Load all summaries inf the summaries folder
     summary_data = []
     for filename in os.listdir("summaries"):
-        with open(os.path.join("summaries", filename), "r") as f:
+        with open(os.path.join("summaries", filename), "r", encoding='utf-8') as f:
             summary_data.append((f.read(), filename.replace(".txt", "")))
     # Combine the data by matching the filenames
     data = []
@@ -174,7 +177,7 @@ class MovieDataset(Dataset):
         return len(self.data_list)
 
     def __getitem__(self, idx):
-        return self.data_list[idx][0], self.data_list[idx][1]
+        return self.data_list[idx][:, 0], self.data_list[idx][:, 1]
 
 
 def train_model():
@@ -195,13 +198,13 @@ def train_model():
     num_steps = float(num_samples) * num_train_epochs / \
         (batch_size * gradient_accumulation_steps)
     steps_per_epoch = int(num_steps / num_train_epochs)
-
+    data = loadScriptData()  # indexes should match
     # Load the longformer from huggingface
     led = AutoModelForSeq2SeqLM.from_pretrained(
         "allenai/led-base-16384", gradient_checkpointing=True, use_cache=False)  # Load the tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         "allenai/led-base-16384")  # Tokenize the data
-    tokenized_data = tokenizer(data, return_tensors='pt')
+    # tokenized_data = tokenizer(data, return_tensors='pt')
     training_args = Seq2SeqTrainingArguments(
         predict_with_generate=True,
         evaluation_strategy="steps",
@@ -232,9 +235,6 @@ def train_model():
     compute_metrics_partial = partial(
         compute_metrics, tokenizer=tokenizer, rouge=rouge)
 
-    # TODO: load all scripts and summaries into a dataset
-    data = loadScriptData()  # indexes should match
-
     # Perform k-fold cross validation
     k = 6
     # Split data into k folds
@@ -262,7 +262,8 @@ def train_model():
         # start training
         # torch.autograd.set_detect_anomaly(True)
         trainer.train()
-        trainer.evaluate()
+        # trainer.evaluate()
+        trainer.save_model("check/")
 
 
 def removeScriptWords(text):
@@ -296,3 +297,4 @@ if __name__ == "__main__":
         scenes = [' '.join(scene) for scene in scenes]
         # print(convertFileName("The Bourne Identity (2002 film)"))
         summarize_text(removeScriptWords(data))
+        train_model()
