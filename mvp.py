@@ -14,12 +14,12 @@ from transformers import (
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 import nltk
-import torch
+#import torch
 nltk.download('stopwords')
 tokenizer = AutoTokenizer.from_pretrained(
         "allenai/led-base-16384")
 
-torch.cuda.empty_cache()
+#torch.cuda.empty_cache()
 
 # import evaluate
 
