@@ -238,7 +238,7 @@ def train_model():
     # max encoder length for led
     encoder_max_length = 1024
     decoder_max_length = 768
-    batch_size = 16
+    batch_size = 2
     gradient_accumulation_steps = 4
     noise_lambda = 0
     learning_rate = 5e-5
