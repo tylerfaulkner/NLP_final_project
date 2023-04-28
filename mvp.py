@@ -2,8 +2,7 @@
 import re
 import os
 import numpy as np
-from torch.utils.data import Dataset
-# from datasets import Dataset
+from datasets import Dataset
 from datasets import load_metric
 from functools import partial
 from transformers import (
@@ -150,7 +149,7 @@ def loadScriptData():
     for script in script_data:
         for summary in summary_data:
             if script[1] == convertFileName(summary[1]):
-                data.append([script[0], summary[0]])
+                data.append([script[1], script[0], summary[0]])
     return data  # [:,0], data[:,1]
 
 
@@ -168,16 +167,20 @@ def convertFileName(filename):
     return temp
 
 
-class MovieDataset(Dataset):
-    # Pytorch Dataset
-    def __init__(self, data_list):
-        self.data_list = data_list
-
-    def __len__(self):
-        return len(self.data_list)
-
-    def __getitem__(self, idx):
-        return self.data_list[idx][:, 0], self.data_list[idx][:, 1]
+def toDataset(data):
+    movies = []
+    scripts = []
+    summaries = []
+    for i in data:
+        if i.shape[0] == 2:
+            movies.append(i[:, 0])
+            scripts.append(i[:, 1])
+            summaries.append(i[:, 2])
+        else:
+            movies.append(i[0])
+            scripts.append(i[1])
+            summaries.append(i[2])
+    return Dataset.from_dict({"movies": movies, "scripts": scripts, "summaries": summaries})
 
 
 def train_model():
@@ -246,8 +249,8 @@ def train_model():
         # Get validation data
         val_set_array = folds[i]
         # TODO: CONVERT DATA TO DATASET
-        train_set = MovieDataset(train_set_array)
-        val_set = MovieDataset(val_set_array)
+        train_set = toDataset(train_set_array)
+        val_set = toDataset(val_set_array)
         # Train model on training data
         # instantiate trainer
         trainer = Seq2SeqTrainer(

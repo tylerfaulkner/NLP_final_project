@@ -1,6 +1,5 @@
 transfomers
 nltk
-torch
 datasets
 rouge_score
 absl
