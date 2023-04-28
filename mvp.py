@@ -14,6 +14,7 @@ from transformers import (
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 import nltk
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 #import torch
 nltk.download('stopwords')
 tokenizer = AutoTokenizer.from_pretrained(
