@@ -14,9 +14,13 @@ from transformers import (
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 import nltk
+import torch
 nltk.download('stopwords')
 tokenizer = AutoTokenizer.from_pretrained(
         "allenai/led-base-16384")
+
+torch.cuda.empty_cache()
+
 # import evaluate
 
 # List generated with the help of Github Copilot
@@ -238,7 +242,7 @@ def train_model():
     # max encoder length for led
     encoder_max_length = 1024
     decoder_max_length = 768
-    batch_size = 2
+    batch_size = 1
     gradient_accumulation_steps = 4
     noise_lambda = 0
     learning_rate = 5e-5
