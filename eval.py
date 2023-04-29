@@ -14,57 +14,63 @@ from transformers import (
 )
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 
 # load rouge
 rouge = load_metric("rouge")
+print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longwer though.")
+movie_path = input("Enter the path to the movie script (example, test_data/Alien_script.txt): ")
 
 # load testset
 script, summ = "", ""
-with open("test_data/Alien_script.txt", "r") as f:
+with open(movie_path, "r") as f:
     script = f.read()
-with open('test_data/Alien_summ.txt', 'r') as f:
+with open(movie_path, 'r') as f:
     summ = f.read()
 
 test_set = Dataset.from_dict({"script": [script], "summary": [summ]})
 
 # load tokenizer
-
-# tokenizer = AutoTokenizer.from_pretrained("allenai/led-large-16384")
+print("Loading tokenizer...")
+tokenizer = AutoTokenizer.from_pretrained("allenai/led-base-16384")
 # led = AutoModelForSeq2SeqLM.from_pretrained(
 #     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
-tokenizer = AutoTokenizer.from_pretrained(
-    "pre_trained_model")
+#tokenizer = AutoTokenizer.from_pretrained(
+ #   "check")
+print("Loading model...")
 led = AutoModelForSeq2SeqLM.from_pretrained(
-    "pre_trained_model", use_cache=False)
+    "check", use_cache=False)
 
 # load tokenizer
 #TODO swithc back to cuda 
-# model = led.to("cuda").half()
-model = led.to("cpu")
+model = led.to(device)
 
 
 def generate_answer(batch):
-    inputs_dict = tokenizer(batch["script"], padding="max_length",
-                            max_length=8192, return_tensors="pt", truncation=True)
+    print("Tokenizing batch...")
+    inputs_dict = tokenizer(batch["script"], padding="max_length", max_length=1024, return_tensors="pt", truncation=True)
     # input_ids = inputs_dict.input_ids.to("cuda")
     # attention_mask = inputs_dict.attention_mask.to("cuda")
-    input_ids = inputs_dict.input_ids.to("cpu")
-    attention_mask = inputs_dict.attention_mask.to("cpu")
+
+    input_ids = inputs_dict.input_ids.to(device)
+    attention_mask = inputs_dict.attention_mask.to(device)
     global_attention_mask = torch.zeros_like(attention_mask)
     # put global attention on <s> token
     global_attention_mask[:, 0] = 1
-
+    print("Generating summary from model...")
     predicted_summary_ids = model.generate(
         input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+    print("Decoding summary...")
     batch["predicted_summary"] = tokenizer.batch_decode(
         predicted_summary_ids, skip_special_tokens=True)
     return batch
 
-
+print("Generating summary...")
 result = test_set.map(generate_answer, batched=True, batch_size=1)
-
-print("Result:", rouge.compute(predictions=result["predicted_summary"],
+print(result["predicted_summary"])
+print("Result (Rouge Score):", rouge.compute(predictions=result["predicted_summary"],
       references=result["summary"], rouge_types=["rouge2"])["rouge2"].mid)
 
 with open("output_score.txt", "a") as f:

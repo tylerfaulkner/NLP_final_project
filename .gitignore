@@ -3,3 +3,5 @@
 check
 __pycache__/*.pyc
 __pycache__
+build
+dist
