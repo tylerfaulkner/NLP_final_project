@@ -267,22 +267,22 @@ def train_model():
         per_device_eval_batch_size=batch_size,
         #learning_rate=learning_rate,
         #weight_decay=weight_decay,
-        #num_train_epochs=num_train_epochs,
+        num_train_epochs=1,
         fp16=False,
-        fp16_backend="apex",
+        #fp16_backend="apex",
         output_dir="./",
-        logging_steps=250,
-        eval_steps=5000,
-        save_steps=500,
-        warmup_steps=512,
+        logging_steps=5,
+        eval_steps=10,
+        save_steps=10,
+        #warmup_steps=512,
         save_total_limit=2,
-        gradient_accumulation_steps=gradient_accumulation_steps,
+        gradient_accumulation_steps=2,
         optim="adafactor"
     )
 
     led.config.num_beams = 2
-    led.config.max_length = 1024
-    led.config.min_length = 768
+    led.config.max_length = 512
+    led.config.min_length = 100
     led.config.length_penalty = 2.0
     led.config.early_stopping = True
     led.config.no_repeat_ngram_size = 3
