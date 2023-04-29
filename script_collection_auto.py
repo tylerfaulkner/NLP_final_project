@@ -42,7 +42,7 @@ def attemptAddToFailList(movie_name = None):
         with open("failed.txt", "a") as f:
             f.write(movie_name)
 
-def getScript(url, movie_name = None):
+def getScript(url, folder='raw_scripts', movie_name = None):
     #Get the HTML from the URL
     r = requests.get(url)
     #Save the movie name to a file if the reuquest failed
@@ -74,10 +74,10 @@ def getScript(url, movie_name = None):
             text = text.replace("\ufffd", "")
             #Try to delete the file if it exists
             try:
-                os.remove("raw_scripts/"+ filename + ".txt")
+                os.remove(folder + "/"+ filename + ".txt")
             except OSError:
                 pass
-            with open("raw_scripts/"+ filename + ".txt", "w") as f:
+            with open(folder + "/"+ filename + ".txt", "w") as f:
                 f.write(text)
     
 if __name__ == "__main__":
