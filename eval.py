@@ -9,6 +9,7 @@ from transformers import (
     AutoTokenizer,
     AutoModelForSeq2SeqLM,
 )
+import logging
 
 import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
@@ -17,7 +18,7 @@ print(device)
 
 # load rouge
 rouge = load_metric("rouge")
-print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longwer though.")
+print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longer though.")
 movie_path = input("Enter the path to the movie script (example, test_data/Alien_script.txt): ")
 
 # load testset
