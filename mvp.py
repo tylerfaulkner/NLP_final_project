@@ -19,7 +19,7 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 nltk.download('stopwords')
 tokenizer = AutoTokenizer.from_pretrained(
         "allenai/led-base-16384")
-
+curMetricCount = 0
 #torch.cuda.empty_cache()
 
 # import evaluate
@@ -105,6 +105,7 @@ def reduceScriptTo16k(text):
 
 
 def compute_metrics(pred, tokenizer, rouge):
+    global curMetricCount
     labels_ids = pred.label_ids
     pred_ids = pred.predictions
 
@@ -117,8 +118,7 @@ def compute_metrics(pred, tokenizer, rouge):
                  rouge_output["rougeL"].mid.fmeasure +
                  rouge_output["rougeLsum"].mid.fmeasure
                  )/4
-
-    return {
+    metrics =  {
         "rouge1_precision": round(rouge_output["rouge1"].mid.precision, 4),
         "rouge1_recall": round(rouge_output["rouge1"].mid.recall, 4),
         "rouge1_fmeasure": round(rouge_output["rouge1"].mid.fmeasure, 4),
@@ -137,6 +137,11 @@ def compute_metrics(pred, tokenizer, rouge):
 
         "average_rogue": round(avg_score, 4),
     }
+    #Save metrics to file
+    with open("metrics/metrics" + str(curMetricCount) + ".txt", "a") as f:
+        f.write(str(metrics) + "\n")
+        curMetricCount += 1
+    return metrics
 
 
 def loadScriptData():
@@ -341,7 +346,7 @@ def train_model():
         # start training
         # torch.autograd.set_detect_anomaly(True)
         trainer.train()
-        # trainer.evaluate()
+        trainer.evaluate()
         trainer.save_model("check/")
 
 

@@ -1,0 +1,1 @@
+{'rouge1_precision': 0.3254, 'rouge1_recall': 0.4127, 'rouge1_fmeasure': 0.3627, 'rouge2_precision': 0.0637, 'rouge2_recall': 0.0822, 'rouge2_fmeasure': 0.0715, 'rougeL_precision': 0.1422, 'rougeL_recall': 0.1804, 'rougeL_fmeasure': 0.1585, 'rougeLsum_precision': 0.235, 'rougeLsum_recall': 0.2977, 'rougeLsum_fmeasure': 0.2618, 'average_rogue': 0.2136}
