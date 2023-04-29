@@ -317,6 +317,16 @@ def train_model():
             tokenize_function, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
         val_set = val_set.map(
             tokenize_function, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
+        
+        train_set.set_format(
+            type="torch",
+            columns=["input_ids", "attention_mask", "global_attention_mask", "labels"],
+        )
+        val_set.set_format(
+            type="torch",
+            columns=["input_ids", "attention_mask", "global_attention_mask", "labels"],
+        )
+        
         print("Datasets Converted to Input Format")
         print(train_set)
         print(val_set)
