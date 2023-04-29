@@ -1,3 +1,5 @@
 .venv
 .vscode/settings.json
 check
+__pycache__/*.pyc
+__pycache__
