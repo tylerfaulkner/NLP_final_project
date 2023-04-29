@@ -1,5 +1,9 @@
-This is our NLP final project. It is a python model that generates a movie synopsis using the movie script.
+# Final NLP Project
+Tyler Faulkner and Tyler Tran 
 
+This is our NLP final project. It is a python model that generates a movie synopsis using the movie script. The model is a Encoder-Decoder transformer from the HuggingFace library. The model was trained on 12 action movies. The scripts were scraped from imsdb.com and the summaries were scraped from the respective Wikipedia pages. The model was tested on 4 action movies collected in the same way. 
+
+## Running the Program 
 To run the program, first create and activate a virtual python environment. This can be done using the following commands in the repo directory:
 
 Windows
