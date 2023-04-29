@@ -1,8 +1,5 @@
 import pandas as pd
-import numpy as np
 import torch
-import pyarrow as pa
-import pyarrow.dataset as ds
 import pandas as pd
 from datasets import Dataset
 from datasets import load_dataset, load_metric
