@@ -199,10 +199,8 @@ def process_data_to_model_inputs(batch):
     """
     From LED Google collab notebook: https://colab.research.google.com/drive/12LjJazBl7Gam0XBPy_y0CTOJZeZ34c2v?usp=sharing#scrollTo=lEcAaZhNY8ge
     """
-    encoder_max_length = 1024
-    decoder_max_length = 768
-    max_input_length = 1024
-    max_output_length = 768
+    max_input_length = 10000
+    max_output_length = 2000
     # tokenize the inputs and labels
     inputs = tokenizer(
         batch["scripts"],
@@ -265,24 +263,24 @@ def train_model():
         evaluation_strategy="steps",
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
-        #learning_rate=learning_rate,
-        #weight_decay=weight_decay,
-        num_train_epochs=1,
+        learning_rate=learning_rate,
+        weight_decay=weight_decay,
+        num_train_epochs=num_train_epochs,
         fp16=False,
-        #fp16_backend="apex",
+        fp16_backend="apex",
         output_dir="./",
-        logging_steps=5,
-        eval_steps=10,
-        save_steps=10,
-        #warmup_steps=512,
+        logging_steps=steps_per_epoch,
+        eval_steps=steps_per_epoch,
+        save_steps=steps_per_epoch,
+        warmup_steps=512,
         save_total_limit=2,
-        gradient_accumulation_steps=2,
+        gradient_accumulation_steps=gradient_accumulation_steps,
         optim="adafactor"
     )
 
     led.config.num_beams = 2
-    led.config.max_length = 512
-    led.config.min_length = 100
+    led.config.max_length = 1024
+    led.config.min_length = 768
     led.config.length_penalty = 2.0
     led.config.early_stopping = True
     led.config.no_repeat_ngram_size = 3
@@ -311,12 +309,11 @@ def train_model():
         # TODO: CONVERT DATA TO DATASET
         train_set = toDataset(train_set_array)
         val_set = toDataset(val_set_array)
-        def tokenize_function(examples):
-            return tokenizer(examples["scripts"], padding="max_length", truncation=True)
+
         train_set = train_set.map(
-            tokenize_function, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
+            process_data_to_model_inputs, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
         val_set = val_set.map(
-            tokenize_function, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
+            process_data_to_model_inputs, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
         
         train_set.set_format(
             type="torch",
@@ -326,7 +323,6 @@ def train_model():
             type="torch",
             columns=["input_ids", "attention_mask", "global_attention_mask", "labels"],
         )
-        
         print("Datasets Converted to Input Format")
         print(train_set)
         print(val_set)
@@ -334,7 +330,7 @@ def train_model():
         # instantiate trainer
         trainer = Seq2SeqTrainer(
             model=led,
-            #tokenizer=tokenizer,
+            tokenizer=tokenizer,
             args=training_args,
             compute_metrics=compute_metrics_partial,
             train_dataset=train_set,
