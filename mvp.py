@@ -199,8 +199,8 @@ def process_data_to_model_inputs(batch):
     """
     From LED Google collab notebook: https://colab.research.google.com/drive/12LjJazBl7Gam0XBPy_y0CTOJZeZ34c2v?usp=sharing#scrollTo=lEcAaZhNY8ge
     """
-    max_input_length = 10000
-    max_output_length = 2000
+    max_input_length = 1024
+    max_output_length = 768
     # tokenize the inputs and labels
     inputs = tokenizer(
         batch["scripts"],
@@ -309,7 +309,8 @@ def train_model():
         # TODO: CONVERT DATA TO DATASET
         train_set = toDataset(train_set_array)
         val_set = toDataset(val_set_array)
-
+        def tokenize_function(examples):
+            return tokenizer(examples["scripts"], padding="max_length", truncation=True)
         train_set = train_set.map(
             process_data_to_model_inputs, batched=True, batch_size=batch_size, remove_columns=["movies", "summaries", "scripts"])
         val_set = val_set.map(
