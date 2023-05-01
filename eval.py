@@ -1,6 +1,7 @@
 import pandas as pd
 import torch
 import pandas as pd
+from mvp import reduceScriptTo16k
 from datasets import Dataset
 from datasets import load_dataset, load_metric
 from transformers import (
@@ -8,6 +9,7 @@ from transformers import (
     Seq2SeqTrainingArguments,
     AutoTokenizer,
     AutoModelForSeq2SeqLM,
+    pipeline,
 )
 import logging
 import time
@@ -16,6 +18,23 @@ import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
+
+# load tokenizer
+print("Loading tokenizer...")
+tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
+# led = AutoModelForSeq2SeqLM.from_pretrained(
+#     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
+#tokenizer = AutoTokenizer.from_pretrained(
+ #   "check")
+print("Loading model...")
+led = AutoModelForSeq2SeqLM.from_pretrained(
+    "grizzlypath26/script2sumPrototype", use_cache=False).to(device)
+
+#led = BetterTransformer.transform(led, keep_original_model=True)
+pipeline = pipeline("summarization", model=led, tokenizer=tokenizer)
+# load tokenizer
+#TODO swithc back to cuda 
+model = led.to(device)
 
 # load rouge
 rouge = load_metric("rouge")
@@ -31,23 +50,11 @@ with open(sum_path, 'r') as f:
     summ = f.read()
 
 test_set = Dataset.from_dict({"script": [script], "summary": [summ]})
-
-# load tokenizer
-print("Loading tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
-# led = AutoModelForSeq2SeqLM.from_pretrained(
-#     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
-#tokenizer = AutoTokenizer.from_pretrained(
- #   "check")
-print("Loading model...")
-led = AutoModelForSeq2SeqLM.from_pretrained(
-    "grizzlypath26/script2sumPrototype", use_cache=False)
-
-#led = BetterTransformer.transform(led, keep_original_model=True)
-
-# load tokenizer
-#TODO swithc back to cuda 
-model = led.to(device)
+print("Running inference using pipeline...")
+start = time.time()
+pipeline.predict(reduceScriptTo16k(script))
+end = time.time()
+print("Time for inference (s): ", end - start)
 
 
 def generate_answer(batch):

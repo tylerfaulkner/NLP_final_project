@@ -86,7 +86,7 @@ def summarize_text(text, threshold=1):
     for sentence in sentences:
         if (sentence in sentenceValue) and (sentenceValue[sentence] > (threshold * average)):
             summary += " " + sentence
-    summary_tokens = word_tokenize(summary)
+    summary_tokens = tokenizer.tokenize(summary)
     print("Total amount of token in summary:", len(summary_tokens))
     # print("Summary:", summary)
     return summary, len(summary_tokens)
