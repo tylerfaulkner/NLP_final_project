@@ -10,6 +10,7 @@ from transformers import (
     AutoModelForSeq2SeqLM,
 )
 import logging
+import time
 
 import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
@@ -32,14 +33,16 @@ test_set = Dataset.from_dict({"script": [script], "summary": [summ]})
 
 # load tokenizer
 print("Loading tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained("allenai/led-base-16384")
+tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
 # led = AutoModelForSeq2SeqLM.from_pretrained(
 #     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
 #tokenizer = AutoTokenizer.from_pretrained(
  #   "check")
 print("Loading model...")
 led = AutoModelForSeq2SeqLM.from_pretrained(
-    "check", use_cache=False)
+    "grizzlypath26/script2sumPrototype", use_cache=False)
+
+#led = BetterTransformer.transform(led, keep_original_model=True)
 
 # load tokenizer
 #TODO swithc back to cuda 
@@ -58,11 +61,15 @@ def generate_answer(batch):
     # put global attention on <s> token
     global_attention_mask[:, 0] = 1
     print("Generating summary from model...")
+    #get time for inference
+    start = time.time()
     predicted_summary_ids = model.generate(
         input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
     print("Decoding summary...")
     batch["predicted_summary"] = tokenizer.batch_decode(
         predicted_summary_ids, skip_special_tokens=True)
+    end = time.time()
+    print("Time for inference (s): ", end - start)
     return batch
 
 print("Generating summary...")
