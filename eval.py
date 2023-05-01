@@ -26,7 +26,8 @@ movie_path = input("Enter the path to the movie script (example, test_data/Alien
 script, summ = "", ""
 with open(movie_path, "r") as f:
     script = f.read()
-with open(movie_path, 'r') as f:
+sum_path = input("Enter the path to the movie summary (example, test_data/Alien_summ.txt): ")
+with open(sum_path, 'r') as f:
     summ = f.read()
 
 test_set = Dataset.from_dict({"script": [script], "summary": [summ]})
