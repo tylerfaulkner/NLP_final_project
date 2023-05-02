@@ -48,9 +48,6 @@ model.eval()
 with torch.no_grad(), torch.cpu.amp.autocast():
     # load rouge
     rouge = load_metric("rouge")
-    print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longer though.")
-    if movie_path == "":
-        movie_path = default_script
     
     movie_path = "tempScript.txt"
 
