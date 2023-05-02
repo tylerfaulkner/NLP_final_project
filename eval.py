@@ -28,6 +28,9 @@ device_index = 0
 print("Device: ", device)
 print("Device index: ", device_index)
 
+default_script = "test_data/Alien_script.txt"
+default_summ = "test_data/Alien_summ.txt"
+
 # load tokenizer
 print("Loading tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
@@ -55,12 +58,16 @@ with torch.no_grad(), torch.cpu.amp.autocast():
     rouge = load_metric("rouge")
     print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longer though.")
     movie_path = input("Enter the path to the movie script (example, test_data/Alien_script.txt): ")
+    if movie_path == "":
+        movie_path = default_script
 
     # load testset
     script, summ = "", ""
     with open(movie_path, "r") as f:
         script = f.read()
     sum_path = input("Enter the path to the movie summary (example, test_data/Alien_summ.txt): ")
+    if sum_path == "":
+        sum_path = default_summ
     with open(sum_path, 'r') as f:
         summ = f.read()
 
