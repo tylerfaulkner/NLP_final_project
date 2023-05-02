@@ -15,41 +15,42 @@ import logging
 import time
 
 import os
-with torch.no_grad():
-    def get_tensor_rank(tensor):
-        #check tensor dtype
-        if tensor.dtype != torch.float32:
-            tensor = tensor(0)
-        return torch.linalg.matrix_rank(tensor)
-    
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    device_index = 0
-    print("Device: ", device)
-    print("Device index: ", device_index)
 
-    # load tokenizer
-    print("Loading tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
-    # led = AutoModelForSeq2SeqLM.from_pretrained(
-    #     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
-    #tokenizer = AutoTokenizer.from_pretrained(
-    #   "check")
-    print("Loading model...")
-    led = AutoModelForSeq2SeqLM.from_pretrained(
-        "grizzlypath26/script2sumPrototype", use_cache=False)
-    # load tokenizer
-    #TODO swithc back to cuda 
-    model = led.to(device)
-    if torch.cuda.device_count() > 1:
-        model = model.half()
-    else:
-        #optimize for intel
-        import intel_extension_for_pytorch as ipex
-        model = ipex.optimize(model)
-        model = model.to(memory_format=torch.channels_last)
+def get_tensor_rank(tensor):
+    #check tensor dtype
+    if tensor.dtype != torch.float32:
+        tensor = tensor(0)
+    return torch.linalg.matrix_rank(tensor)
 
+#os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device_index = 0
+print("Device: ", device)
+print("Device index: ", device_index)
 
+# load tokenizer
+print("Loading tokenizer...")
+tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
+# led = AutoModelForSeq2SeqLM.from_pretrained(
+#     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
+#tokenizer = AutoTokenizer.from_pretrained(
+#   "check")
+print("Loading model...")
+led = AutoModelForSeq2SeqLM.from_pretrained(
+    "grizzlypath26/script2sumPrototype", use_cache=False)
+# load tokenizer
+#TODO swithc back to cuda 
+model = led.to(device)
+if torch.cuda.device_count() > 1:
+    model = model.half()
+else:
+    #optimize for intel
+    print("Optimizing for Intel...")
+    import intel_extension_for_pytorch as ipex
+    model = ipex.optimize(model, dtype=torch.bfloat16)
+    model = model.to(memory_format=torch.channels_last)
+model.eval()
+with torch.no_grad(), torch.cpu.amp.autocast():
     # load rouge
     rouge = load_metric("rouge")
     print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longer though.")
