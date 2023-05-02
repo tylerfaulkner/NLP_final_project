@@ -8,7 +8,7 @@ import subprocess
 
 sio = socketio.Client()
 
-sio.connect('http://ec2-3-15-183-255.us-east-2.compute.amazonaws.com:5000')
+sio.connect('http://44.201.114.68:5000')
 
 @sio.event
 def connect():
