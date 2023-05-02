@@ -36,7 +36,7 @@ led = AutoModelForSeq2SeqLM.from_pretrained(
 # load tokenizer
 #TODO swithc back to cuda 
 model = led.to(device)
-if device == "cuda":
+if torch.cuda.is_available():
     model = model.half()
 else:
     #optimize for intel
