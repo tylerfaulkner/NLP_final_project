@@ -19,7 +19,7 @@ def handle_disconnect():
 
 @socketio.on('generatedSummary')
 def handle_summary(summary):
-    print("Summary received")
+    print("Summary received in socketio")
     print(summary)
     summary = summary
 
@@ -29,8 +29,10 @@ def generateSummary():
     text = request.data.decode('utf-8')
     socketio.emit('summary', text)
     while summary is None:
+        global summary
         print("Waiting for summary...")
         time.sleep(1)
+    print("Summary received in request")
     return summary
 
 
