@@ -26,7 +26,7 @@ def handle_summary(summary):
 @app.route('/generateSummary', methods=['GET'])
 def generateSummary():
     global summary
-    text = request.body
+    text = request.data.decode('utf-8')
     socketio.emit('summary', text)
     while summary is None:
         time.sleep(1)
