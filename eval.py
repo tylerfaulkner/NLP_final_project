@@ -77,13 +77,13 @@ with torch.no_grad():
         global_attention_mask = torch.zeros_like(attention_mask)
         global_attention_mask[:, 0] = 1
 
-        if torch.cuda.device_count() < 1:
+        #if torch.cuda.device_count() < 1:
             #if get_tensor_rank(input_ids) > 3:
                 #input_ids = input_ids.to(memory_format=torch.channels_last)
-            if get_tensor_rank(attention_mask) > 3:
-                attention_mask = attention_mask.to(memory_format=torch.channels_last)
-            if get_tensor_rank(global_attention_mask) > 3:
-                global_attention_mask = global_attention_mask.to(memory_format=torch.channels_last)
+            #if get_tensor_rank(attention_mask) > 3:
+             #   attention_mask = attention_mask.to(memory_format=torch.channels_last)
+            #if get_tensor_rank(global_attention_mask) > 3:
+             #   global_attention_mask = global_attention_mask.to(memory_format=torch.channels_last)
         # put global attention on <s> token
         print("Generating summary from model...")
         #get time for inference
