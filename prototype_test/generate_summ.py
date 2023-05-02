@@ -11,6 +11,8 @@ script, summ = "", ""
 with open(movie_path, "r") as f:
     script = f.read()
 
+print("Sending script to server")
+print("Response will take about 1 minute")
 r = requests.get(url + "/generateSummary", data=script)
 print(r.text)
 
