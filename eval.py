@@ -17,7 +17,11 @@ import time
 import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
+device_index = 0
+print("Device: ", device)
+print("Device index: ", device_index)
+print(torch.cuda.get_device_name(device_index))
+print(device_index)
 
 # load tokenizer
 print("Loading tokenizer...")
@@ -28,13 +32,10 @@ tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
  #   "check")
 print("Loading model...")
 led = AutoModelForSeq2SeqLM.from_pretrained(
-    "grizzlypath26/script2sumPrototype", use_cache=False).to(device)
-
-#led = BetterTransformer.transform(led, keep_original_model=True)
-pipeline = pipeline("summarization", model=led, tokenizer=tokenizer)
+    "grizzlypath26/script2sumPrototype", use_cache=False)
 # load tokenizer
 #TODO swithc back to cuda 
-model = led.to(device)
+model = led.to(device).half()
 
 # load rouge
 rouge = load_metric("rouge")
@@ -50,16 +51,11 @@ with open(sum_path, 'r') as f:
     summ = f.read()
 
 test_set = Dataset.from_dict({"script": [script], "summary": [summ]})
-print("Running inference using pipeline...")
-start = time.time()
-pipeline.predict(reduceScriptTo16k(script))
-end = time.time()
-print("Time for inference (s): ", end - start)
 
 
 def generate_answer(batch):
     print("Tokenizing batch...")
-    inputs_dict = tokenizer(batch["script"], padding="max_length", max_length=1024, return_tensors="pt", truncation=True)
+    inputs_dict = tokenizer(batch["script"], padding="max_length", return_tensors="pt", truncation=True)
     # input_ids = inputs_dict.input_ids.to("cuda")
     # attention_mask = inputs_dict.attention_mask.to("cuda")
 
