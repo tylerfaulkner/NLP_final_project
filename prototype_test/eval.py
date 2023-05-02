@@ -99,7 +99,7 @@ with torch.no_grad(), torch.cpu.amp.autocast():
     result = test_set.map(generate_answer, batched=True, batch_size=1)
     print(result["predicted_summary"])
     with open("tempSumm.txt", "w") as f:
-        f.write(result["predicted_summary"])
+        f.write(result["predicted_summary"][0])
     #print("Result (Rouge Score):", rouge.compute(predictions=result["predicted_summary"],
        # references=result["summary"], rouge_types=["rouge2"])["rouge2"].mid)
 
