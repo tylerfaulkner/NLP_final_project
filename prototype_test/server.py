@@ -29,6 +29,7 @@ def generateSummary():
     text = request.data.decode('utf-8')
     socketio.emit('summary', text)
     while summary is None:
+        print("Waiting for summary...")
         time.sleep(1)
     return summary
 
