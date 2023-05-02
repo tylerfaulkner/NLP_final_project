@@ -17,6 +17,9 @@ import time
 import os
 with torch.no_grad():
     def get_tensor_rank(tensor):
+        #check tensor dtype
+        if tensor.dtype != torch.float32:
+            tensor = tensor(0)
         return torch.linalg.matrix_rank(tensor)
     
     #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
@@ -75,8 +78,8 @@ with torch.no_grad():
         global_attention_mask[:, 0] = 1
 
         if torch.cuda.device_count() < 1:
-            if get_tensor_rank(input_ids) > 3:
-                input_ids = input_ids.to(memory_format=torch.channels_last)
+            #if get_tensor_rank(input_ids) > 3:
+                #input_ids = input_ids.to(memory_format=torch.channels_last)
             if get_tensor_rank(attention_mask) > 3:
                 attention_mask = attention_mask.to(memory_format=torch.channels_last)
             if get_tensor_rank(global_attention_mask) > 3:
