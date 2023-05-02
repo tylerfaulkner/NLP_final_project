@@ -21,8 +21,6 @@ with torch.no_grad():
     device_index = 0
     print("Device: ", device)
     print("Device index: ", device_index)
-    print(torch.cuda.get_device_name(device_index))
-    print(device_index)
 
     # load tokenizer
     print("Loading tokenizer...")
@@ -72,7 +70,7 @@ with torch.no_grad():
         attention_mask = inputs_dict.attention_mask.to(device)
         global_attention_mask = torch.zeros_like(attention_mask)
         global_attention_mask[:, 0] = 1
-        
+
         if torch.cuda.device_count() < 1:
             input_ids = input_ids.to(memory_format=torch.channels_last)
             attention_mask = attention_mask.to(memory_format=torch.channels_last)
