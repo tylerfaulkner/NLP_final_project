@@ -49,7 +49,6 @@ with torch.no_grad(), torch.cpu.amp.autocast():
     # load rouge
     rouge = load_metric("rouge")
     print("We recommend to use a GPU to speed up inference time, but this can be ran on a CPU. It will take much longer though.")
-    movie_path = input("Enter the path to the movie script (example, test_data/Alien_script.txt): ")
     if movie_path == "":
         movie_path = default_script
     
