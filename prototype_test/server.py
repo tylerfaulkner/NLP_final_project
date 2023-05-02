@@ -3,6 +3,7 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import time
+import os
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -20,19 +21,30 @@ def handle_disconnect():
 @socketio.on('generatedSummary')
 def handle_summary(summary):
     print("Summary received in socketio")
-    print(summary)
-    summary = summary
+    #write summary to file
+    with open("tempSumm.txt", "w") as f:
+        f.write(summary)
 
 @app.route('/generateSummary', methods=['GET'])
 def generateSummary():
     global summary
     text = request.data.decode('utf-8')
+    #remove temp sum file if exists
+    try:
+        os.remove("tempSumm.txt")
+    except:
+        pass
     socketio.emit('summary', text)
-    while summary is None:
-        global summary
+    #Check if summary file exists
+
+    while os.path.isfile("tempSumm.txt") == False:
         print("Waiting for summary...")
         time.sleep(1)
-    print("Summary received in request")
+
+    #read summary file
+    with open("tempSumm.txt", "r") as f:
+        summary = f.read()
+    print("Summary received in flask")
     return summary
 
 
