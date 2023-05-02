@@ -24,7 +24,7 @@ def on_message(data):
     print(data)
     with open("tempScript.txt", "w") as f:
         f.write(data)
-    process = subprocess.Popen(["srun --partition dgx --gpus=v100:1 singularity exec --nv /data/containers/msoe-pycuda-11.7.1.sif python3 eval.py"])
+    process = subprocess.Popen("srun --partition dgx --gpus=v100:1 singularity exec --nv /data/containers/msoe-pycuda-11.7.1.sif python3 eval.py", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     while process.poll() is None:
         print("Waiting for process to finish...")
         time.sleep(1)
