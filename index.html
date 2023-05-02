@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>NLP Final Project</title>
+    <script src="index.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body style="text-align: center">
+    <h1>Movie Script Summarizer NLP Final Project</h1>
+    <h3>Tyler Faulkner and Tyler Tran</h3>
+    <p>
+      This is our NLP final project. It is a python model that generates a movie
+      synopsis using the movie script. The model is a Encoder-Decoder
+      transformer from the HuggingFace library. The model was trained on 12
+      action movies. The scripts were scraped from imsdb.com and the summaries
+      were scraped from the respective Wikipedia pages. The model was tested on
+      4 action movies collected in the same way.
+    </p>
+    <hr />
+    <h2>Select a movie below to generate a summary for</h2>
+    <button onclick="generateSumm(this)">Alien</button>
+    <button onclick="generateSumm(this)">Men in Black</button>
+    <button onclick="generateSumm(this)">TRON</button>
+    <button onclick="generateSumm(this)">X-Men</button>
+    <p></p>
+    <textarea readonly id="summaryBox" style="width: 75%; height: 500px">
+    </textarea>
+  </body>
+</html>

@@ -8,7 +8,7 @@ import subprocess
 
 sio = socketio.Client()
 
-sio.connect('http://44.201.114.68:5000')
+sio.connect('http://127.0.0.1:5000/')
 
 @sio.event
 def connect():

@@ -31,12 +31,8 @@ pip install -r requirements.txt
 Once the environment is set up, you can run the program like so:
 
 ```
-python eval.py
+python /prototpye_test/generate_summ.py
 ```
 
-Preprocssing done on Movie Scripts:
-
-- Movie Script DB use many line breaks and tags to format correctly on web viewer
-  - removed all tags like <b>, <i>, etc
-- Not too much consistency to how screenplays are layed out
-  - Most likely since scripts are user submissions
+You will be then be prompted for a movie script. Select one in the 'test_data/' directory. 
+After a minute or so, your summary should be generated.
