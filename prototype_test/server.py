@@ -10,6 +10,13 @@ socketio = SocketIO(app)
 
 summary = None
 
+movie2script = {
+    "Alien" : "Alien_script.txt",
+    "Men-in-Black" : "Men-in-Black.txt",
+    "TRON" : "TRON.txt",
+    "X-Men" : "X-Men.txt"
+}
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -33,7 +40,7 @@ def handle_summary(summary):
 def generateSummary():
     global summary
     filename = request.args.get('filename')
-    text = ''
+    filename = movie2script[filename]
     with open(f'test_data/{filename}.txt', "r") as f:
         text = f.read()
 
