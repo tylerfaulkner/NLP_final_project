@@ -1,4 +1,4 @@
-url = "http://127.0.0.1:5000/generateSummary";
+url = "http://nlp-prototype.tyler-faulkner.com:5000/generateSummary";
 
 function generateSumm(button) {
   var text = button.textContent;
