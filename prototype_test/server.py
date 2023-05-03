@@ -54,8 +54,8 @@ def generateSummary():
         summary = f.read()
     print("Summary received in flask")
     response = jsonify(summary)
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return summary
+    response.headers.add('Access-Control-Allow-Origin', 'http://nlp-prototype.tyler-faulkner.com')
+    return response
 
 
 if __name__ == '__main__':
