@@ -63,6 +63,7 @@ def generateSummary():
     with open("tempSumm.txt", "r") as f:
         summary = f.read()
     print("Summary received in flask")
+    request.headers['Access-Control-Allow-Origin'] = '*'
     return summary
 
 
