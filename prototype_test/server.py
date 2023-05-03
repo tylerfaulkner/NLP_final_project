@@ -1,24 +1,14 @@
 # A flask SocketIO app that accepts a client connection from MSOE's rosie
 
-from flask import Flask, render_template, request, Blueprint
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import time
 import os
-blueprint = Blueprint('blueprint', __name__)
 
 app = Flask(__name__)
 socketio = SocketIO(app)
 
 summary = None
-
-# put this sippet ahead of all your bluprints
-# blueprint can also be app~~
-@blueprint.after_request 
-def after_request(response):
-    header = response.headers
-    header['Access-Control-Allow-Origin'] = 'http://nlp-prototype.tyler-faulkner.com'
-    # Other headers can be added here if needed
-    return response
 
 
 @socketio.on('connect')
@@ -63,7 +53,8 @@ def generateSummary():
     with open("tempSumm.txt", "r") as f:
         summary = f.read()
     print("Summary received in flask")
-    request.headers['Access-Control-Allow-Origin'] = '*'
+    response = jsonify(summary)
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return summary
 
 
