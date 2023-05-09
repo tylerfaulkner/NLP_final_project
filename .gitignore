@@ -5,3 +5,4 @@ __pycache__/*.pyc
 __pycache__
 build
 dist
+scriptbase_formatting/scriptbase_alpha
