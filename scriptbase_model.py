@@ -64,17 +64,20 @@ def train_model():
     # Perform k-fold cross validation
     k = 6
     # Split data into k folds
-    data = pickle.load("./scriptbase_formatting/scriptbase_alpha_list") # indexes should match
+    data = None
+    with open("./scriptbase_formatting/scriptbase_alpha_list", "rb") as f:
+        data = pickle.load(f) # indexes should match
     training_split = 0.8
     train_set_array = data[:int(len(data) * training_split)]
     val_set_array = data[int(len(data) * training_split):]
     print("Rows in train array:" + str(len(train_set_array)))
     # Get validation data
     print("Rows in val array:" + str(len(val_set_array)))
-    print(len(val_set_array[:, 0]))
     # TODO: CONVERT DATA TO DATASET
-    train_set = toDataset(train_set_array)
-    val_set = toDataset(val_set_array)
+    print("Converting Train Data to Dataset")
+    train_set = toDataset(np.array(train_set_array))
+    print("Converting Val Data to Dataset")
+    val_set = toDataset(np.array(val_set_array))
     def tokenize_function(examples):
         return tokenizer(examples["scripts"], padding="max_length", truncation=True)
     train_set = train_set.map(

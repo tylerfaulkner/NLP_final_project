@@ -188,11 +188,11 @@ def toDataset(data):
     for i in data:
         if i.shape[0] == 2:
             movies.append(i[:, 0])
-            scripts.append(i[:, 1])
+            scripts.append(reduceScriptTo16k(i[:, 1]))
             summaries.append(i[:, 2])
         else:
             movies.append(i[0])
-            scripts.append(i[1])
+            scripts.append(reduceScriptTo16k(i[1]))
             summaries.append(i[2])
     dataset = Dataset.from_dict({"movies": movies, "scripts": scripts, "summaries": summaries})
     print(len(dataset))

@@ -28,23 +28,23 @@ device_index = 0
 print("Device: ", device)
 print("Device index: ", device_index)
 
-default_script = "test_data/Alien_script.txt"
-default_summ = "test_data/Alien_summ.txt"
+default_script = "test_data/Alien.txt"
+default_summ = "test_data/Alien_summary.txt"
 
 # load tokenizer
 print("Loading tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
+tokenizer = AutoTokenizer.from_pretrained("checkpoint-255/")
 # led = AutoModelForSeq2SeqLM.from_pretrained(
 #     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
 #tokenizer = AutoTokenizer.from_pretrained(
 #   "check")
 print("Loading model...")
 led = AutoModelForSeq2SeqLM.from_pretrained(
-    "grizzlypath26/script2sumPrototype", use_cache=False)
+    "checkpoint-255", use_cache=False)
 # load tokenizer
 #TODO swithc back to cuda 
 model = led.to(device)
-if torch.cuda.device_count() > 1:
+if device == torch.device('cuda'):
     model = model.half()
 else:
     #optimize for intel

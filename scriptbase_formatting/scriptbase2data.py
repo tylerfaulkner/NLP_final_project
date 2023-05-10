@@ -32,7 +32,7 @@ for file in os.listdir("scriptbase_alpha"):
                 f = tar.extractfile(method)
                 if f:
                     summary = f.read().decode("utf-8")
-        table.append({"name": name, "script": script, "summary": summary})
+        table.append([name, script, summary])
         tar.close()
         print(f"Loaded {name}")
 
