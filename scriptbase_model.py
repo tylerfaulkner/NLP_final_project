@@ -77,9 +77,26 @@ def train_model():
     print("Rows in val array:" + str(len(val_set_array)))
     # TODO: CONVERT DATA TO DATASET
     print("Converting Train Data to Dataset")
-    train_set = toDataset(np.array(train_set_array))
-    print("Converting Val Data to Dataset")
-    val_set = toDataset(np.array(val_set_array))
+    train_set = None
+    # check if dataset already exists
+    try:
+        with open("scriptbase_train_dataset", "rb") as f:
+            train_set = pickle.load(f)
+    except:
+        print("No train dataset found, creating new dataset")
+        train_set = toDataset(np.array(train_set_array))
+        with open("scriptbase_train_dataset", "wb") as f:
+            pickle.dump(train_set, f)
+    
+    val_set = None
+    try:
+        with open("scriptbase_val_dataset", "rb") as f:
+            val_set = pickle.load(f)
+    except:
+        print("No val dataset found, creating new dataset")
+        val_set = toDataset(np.array(val_set_array))
+        with open("scriptbase_val_dataset", "wb") as f:
+            pickle.dump(val_set, f)
     def tokenize_function(examples):
         return tokenizer(examples["scripts"], padding="max_length", truncation=True)
     train_set = train_set.map(

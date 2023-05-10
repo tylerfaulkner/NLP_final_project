@@ -42,10 +42,7 @@ def summarize_text(text, threshold=1):
     """
     # Tokenizing the text
     stopWords = set(stopwords.words("english"))
-    words = word_tokenize(text)
-
-    # Get token count
-    print("Total amount of token:", len(words))
+    words = tokenizer.tokenize(text)
 
     # Creating a frequency table to keep the
     # score of each word
@@ -87,18 +84,18 @@ def summarize_text(text, threshold=1):
         if (sentence in sentenceValue) and (sentenceValue[sentence] > (threshold * average)):
             summary += " " + sentence
     summary_tokens = tokenizer.tokenize(summary)
-    print("Total amount of token in summary:", len(summary_tokens))
-    # print("Summary:", summary)
     return summary, len(summary_tokens)
 
 
 def reduceScriptTo16k(text):
     # Reduce script to 16k tokens
-    threshold = 0.5
+    threshold = 1.2
     summary, tokens, = summarize_text(text, threshold)
+    i = 1
     while tokens > 16384:
-        threshold += 0.1
+        threshold += 0.07 / i
         summary, tokens = summarize_text(text, threshold)
+        i += 1
     return summary
 
 # compute Rouge score during validation
@@ -180,6 +177,22 @@ def convertFileName(filename):
         temp = temp + ",-The"
     return temp
 
+def cleanScript(script):
+    #remove all nltk stop words
+    print("Total amount of tokens in starting script:", len(tokenizer.tokenize(script)))
+    cleaned = script
+    for word in nltk.corpus.stopwords.words('english'):
+        cleaned = re.sub(r'\b' + word + r'\b', '', cleaned)
+    cleaned = cleaned.replace("(window!= top) top.location.href=location.href // -->", "")
+    cleaned = re.sub(r"var gaJsHost (.)+ PDF", "", cleaned)
+    lines = cleaned.split('\n')
+    for line in lines:
+        line = line.strip()
+    cleaned = ' '.join(lines)
+    cleaned = reduceScriptTo16k(cleaned)
+    print("Total amount of tokens in cleaned script:", len(tokenizer.tokenize(cleaned)))
+    return cleaned
+
 
 def toDataset(data):
     movies = []
@@ -188,11 +201,11 @@ def toDataset(data):
     for i in data:
         if i.shape[0] == 2:
             movies.append(i[:, 0])
-            scripts.append(reduceScriptTo16k(i[:, 1]))
+            scripts.append(cleanScript(i[:, 1]))
             summaries.append(i[:, 2])
         else:
             movies.append(i[0])
-            scripts.append(reduceScriptTo16k(i[1]))
+            scripts.append(cleanScript(i[1]))
             summaries.append(i[2])
     dataset = Dataset.from_dict({"movies": movies, "scripts": scripts, "summaries": summaries})
     print(len(dataset))
