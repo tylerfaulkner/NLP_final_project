@@ -63,13 +63,10 @@ def train_model():
     compute_metrics_partial = partial(
         compute_metrics, tokenizer=tokenizer, rouge=rouge)
 
-    # Perform k-fold cross validation
-    k = 6
-    # Split data into k folds
     data = None
     with open("./scriptbase_formatting/scriptbase_alpha_list", "rb") as f:
         data = pickle.load(f) # indexes should match
-    training_split = 0.8
+    training_split = 0.9
     train_set_array = data[:int(len(data) * training_split)]
     val_set_array = data[int(len(data) * training_split):]
     print("Rows in train array:" + str(len(train_set_array)))
