@@ -6,6 +6,8 @@ from datasets import load_metric
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, Seq2SeqTrainer
 from transformers import LEDTokenizer
 from transformers import LEDForConditionalGeneration, LEDConfig
+import nltk
+nltk.download('punkt')
 
 def train_model():
     """
