@@ -95,7 +95,8 @@ def reduceScriptTo16k(text):
     while tokens > 16384:
         threshold += 0.07 / i
         summary, tokens = summarize_text(text, threshold)
-        i += 1
+        if i < 3:
+            i += 1
     return summary
 
 # compute Rouge score during validation
