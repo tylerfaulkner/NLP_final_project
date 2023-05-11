@@ -5,7 +5,7 @@ function generateSumm(button) {
   text = text.replace(/ /g, "-");
 
   $.get(url, { filename: text }, function (data) {
-    document.getElementById("summaryBox").innerHTML = data;
+    document.getElementById("summaryBox").innerHTML = text(data).html();
   });
   console.log(text);
 }
