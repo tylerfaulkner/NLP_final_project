@@ -6,8 +6,15 @@ function generateSumm(button) {
   document.getElementById("status").innerHTML = "Generating summary...";
 
   $.get(url, { filename: text }, function (data) {
-    document.getElementById("summaryBox").innerHTML = text(data).html();
     document.getElementById("status").innerHTML = "Done!";
+    summary = toText(data);
+    document.getElementById("summaryBox").innerHTML = summary;
   });
   console.log(text);
+}
+
+function toText(text) {
+  var tmp = document.createElement("div");
+  tmp.appendChild(document.createTextNode(text));
+  return tmp.innerHTML;
 }
