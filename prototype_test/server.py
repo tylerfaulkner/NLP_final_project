@@ -61,6 +61,8 @@ def generateSummary():
 def generateSummaryFromFile():
     global summary
     text = request.get_data(as_text=True)
+    print(text[:1000])
+    print("Text received from file")
 
     # remove temp sum file if exists
     try:
