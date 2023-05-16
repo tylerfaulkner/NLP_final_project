@@ -57,6 +57,31 @@ def generateSummary():
     response.headers.add('Access-Control-Allow-Origin', 'http://nlp-prototype.tyler-faulkner.com')
     return response
 
+@app.route('/generateSummaryFromFile', methods=['POST'])
+def generateSummary():
+    global summary
+    text = request.get_data(as_text=True)
+
+    # remove temp sum file if exists
+    try:
+        os.remove("tempSumm.txt")
+    except:
+        pass
+    socketio.emit('summary', text)
+    # Check if summary file exists
+
+    while os.path.isfile("tempSumm.txt") == False:
+        print("Waiting for summary...")
+        time.sleep(1)
+
+    # read summary file
+    with open("tempSumm.txt", "r") as f:
+        summary = f.read()
+    print("Summary received in flask")
+    response = jsonify(summary)
+    response.headers.add('Access-Control-Allow-Origin', 'http://nlp-prototype.tyler-faulkner.com')
+    return response
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)

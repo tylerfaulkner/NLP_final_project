@@ -22,6 +22,11 @@
     <button onclick="generateSumm(this)">Men in Black</button>
     <button onclick="generateSumm(this)">TRON</button>
     <button onclick="generateSumm(this)">X-Men</button>
+    <div>
+      <h2>Or upload your own movie script</h2>
+      <input type="file" id="fileInput" />
+      <button onclick="generateSummFromFile()">Generate Summary</button>
+    </div>
     <p id="status"></p>
     <textarea readonly id="summaryBox" style="width: 75%; height: 500px">
     </textarea>

@@ -18,3 +18,22 @@ function toText(text) {
   tmp.appendChild(document.createTextNode(text));
   return tmp.innerHTML;
 }
+
+function generateSummFromFile() {
+  var file = document.getElementById("fileInput").files[0];
+  var reader = new FileReader();
+  reader.readAsText(file);
+  reader.onload = function () {
+    fetch(url + "FromFile", {
+      method: "POST",
+      body: reader.result,
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        document.getElementById("summaryBox").innerHTML = data;
+      }
+      );
+  }
+
+
+}
