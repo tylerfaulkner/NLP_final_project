@@ -25,14 +25,14 @@ default_summ = "test_data/Alien_summ.txt"
 
 # load tokenizer
 print("Loading tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumPrototype")
+tokenizer = AutoTokenizer.from_pretrained("grizzlypath26/script2sumFinal")
 # led = AutoModelForSeq2SeqLM.from_pretrained(
 #     "allenai/led-large-16384", gradient_checkpointing=False, use_cache=False)
 #tokenizer = AutoTokenizer.from_pretrained(
 #   "check")
 print("Loading model...")
 led = AutoModelForSeq2SeqLM.from_pretrained(
-    "grizzlypath26/script2sumPrototype", use_cache=False)
+    "grizzlypath26/script2sumFinal", use_cache=False)
 # load tokenizer
 #TODO swithc back to cuda 
 model = led.to(device)
