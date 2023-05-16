@@ -16,7 +16,7 @@ function generateSumm(button) {
 function toText(text) {
   var tmp = document.createElement("div");
   tmp.appendChild(document.createTextNode(text));
-  return tmp.innerHTML.replace(/\\uffd/g, "");
+  return tmp.innerHTML.replace(/\\uffd/g, "").replace(/\\n/g, "");
 }
 
 function generateSummFromFile() {
