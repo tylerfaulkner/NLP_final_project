@@ -58,7 +58,7 @@ def generateSummary():
     return response
 
 @app.route('/generateSummaryFromFile', methods=['POST'])
-def generateSummary():
+def generateSummaryFromFile():
     global summary
     text = request.get_data(as_text=True)
 
