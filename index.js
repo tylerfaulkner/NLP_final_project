@@ -20,6 +20,7 @@ function toText(text) {
 }
 
 function generateSummFromFile() {
+  document.getElementById("status").innerHTML = "Generating summary...";
   var file = document.getElementById("fileInput").files[0];
   var reader = new FileReader();
   reader.readAsText(file);
@@ -30,7 +31,8 @@ function generateSummFromFile() {
     })
       .then((response) => response.text())
       .then((data) => {
-        document.getElementById("summaryBox").innerHTML = data;
+        document.getElementById("status").innerHTML = "Done!";
+        document.getElementById("summaryBox").innerHTML = toText(data);
       }
       );
   }
